@@ -119,7 +119,7 @@ function style_bash()
 
     function set_user()
     {
-        set_background_color green
+        set_background_color yellow
         set_foreground_color black
         OUTPUT="$OUTPUT$(write_out_section 1)"
 
@@ -151,10 +151,12 @@ function style_bash()
 
         local MODIFIED=$(git status --porcelain)
         if [ -n "$MODIFIED" ]; then
-            MODIFIED=' !'
+            set_background_color yellow
+            MODIFIED=$(printf ' \u00b1')
+        else
+            set_background_color green
         fi
 
-        set_background_color yellow
         set_foreground_color black
         OUTPUT="$OUTPUT$(write_out_section 1)$REF$MODIFIED"
     }
