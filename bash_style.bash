@@ -4,7 +4,7 @@
 # Terminal styling
 #
 
-function style_bash()
+style_bash()
 {
     local ACTIVE_BACKGROUND_COLOR=''
     local ACTIVE_FOREGROUND_COLOR=''
@@ -14,14 +14,14 @@ function style_bash()
 
     local OUTPUT=""
 
-    function write_color()
+    write_color()
     {
         echo -n '\[\033['
         echo -n $1
         echo -n 'm\]'
     }
 
-    function get_color_code()
+    get_color_code()
     {
         local COLOR='30'
         case $1 in
@@ -54,18 +54,18 @@ function style_bash()
         echo -n "$COLOR"
     }
 
-    function set_foreground_color()
+    set_foreground_color()
     {
         ACTIVE_FOREGROUND_COLOR=$1
     }
 
-    function set_background_color()
+    set_background_color()
     {
         PREV_BACKGROUND_COLOR=$ACTIVE_BACKGROUND_COLOR
         ACTIVE_BACKGROUND_COLOR=$1
     }
 
-    function write_foreground_color()
+    write_foreground_color()
     {
         local COLOR=$(get_color_code $1)
 
@@ -76,14 +76,14 @@ function style_bash()
         fi
     }
 
-    function write_background_color()
+    write_background_color()
     {
         local COLOR=$(get_color_code $1)
         COLOR=$(expr $COLOR + 10)
         echo -n "$(write_color $COLOR)"
     }
 
-    function write_out_section()
+    write_out_section()
     {
         if ! [ -z "$ACTIVE_BACKGROUND_COLOR" ]; then
             echo -n $(write_background_color $ACTIVE_BACKGROUND_COLOR)
@@ -103,7 +103,7 @@ function style_bash()
         fi
     }
 
-    function set_host()
+    set_host()
     {
         local IS_SSH=0
         if [ -n "$SSH_TTY" ] || [ -n "$SSH_CLIENT" ] || [ -n "$SSH_CONNECTION" ]; then
@@ -117,7 +117,7 @@ function style_bash()
         OUTPUT="$OUTPUT$(write_out_section 1)\H"
     }
 
-    function set_user()
+    set_user()
     {
         set_background_color yellow
         set_foreground_color black
@@ -130,14 +130,14 @@ function style_bash()
         fi
     }
 
-    function set_cwd()
+    set_cwd()
     {
         set_background_color blue
         set_foreground_color black
         OUTPUT="$OUTPUT$(write_out_section 1)\w"
     }
 
-    function set_git_data()
+    set_git_data()
     {
         git --version >> /dev/null
         if [ $? -ne 0 ]; then
@@ -161,7 +161,7 @@ function style_bash()
         OUTPUT="$OUTPUT$(write_out_section 1)$REF$MODIFIED"
     }
 
-    function ps1()
+    ps1()
     {
         # Generate the PS1
         set_host
@@ -182,4 +182,6 @@ function style_bash()
     PS1="$(ps1)"
 }
 
-PROMPT_COMMAND=style_bash
+if [ "$TERM" != "linux" ]; then
+   PROMPT_COMMAND="style_bash; $PROMPT_COMMAND"
+fi
