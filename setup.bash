@@ -14,14 +14,14 @@ read -s PW
 . terminal_dconf.bash
 
 echo $PW | sudo -S mkdir /etc/bash_style 2> /dev/null
-echo $PW | sudo -S cp $SCRIPT_DIR/bash_style.bash /etc/bash_style/bash_style.bash.bak 2>/dev/null
-echo $PW | sudo -S ln -s $SCRIPT_DIR/bash_style.bash /etc/bash_style/bash_style.bash  2>/dev/null
+echo $PW | sudo -S cp $SCRIPT_DIR/prompt_style.bash /etc/bash_style/prompt_style.bash.bak 2>/dev/null
+echo $PW | sudo -S ln -s $SCRIPT_DIR/prompt_style.bash /etc/bash_style/prompt_style.bash  2>/dev/null
 
 echo $PW | sudo -S bash -c 'echo "" >> /etc/bash.bashrc'
-echo $PW | sudo -S bash -c 'echo '\''if [ -e "/etc/bash_style/bash_style.bash" ]; then'\'' >> /etc/bash.bashrc'
-echo $PW | sudo -S bash -c 'echo '\''    source /etc/bash_style/bash_style.bash'\'' >> /etc/bash.bashrc'
+echo $PW | sudo -S bash -c 'echo '\''if [ -e "/etc/bash_style/prompt_style.bash" ]; then'\'' >> /etc/bash.bashrc'
+echo $PW | sudo -S bash -c 'echo '\''    source /etc/bash_style/prompt_style.bash'\'' >> /etc/bash.bashrc'
 echo $PW | sudo -S bash -c 'echo '\''else'\'' >> /etc/bash.bashrc'
-echo $PW | sudo -S bash -c 'echo '\''    source /etc/bash_style/bash_style.bash.bak'\'' >> /etc/bash.bashrc'
+echo $PW | sudo -S bash -c 'echo '\''    source /etc/bash_style/prompt_style.bash.bak'\'' >> /etc/bash.bashrc'
 echo $PW | sudo -S bash -c 'echo '\''fi'\'' >> /etc/bash.bashrc'
 
 unset PW

@@ -4,7 +4,7 @@
 # Terminal styling
 #
 
-style_bash()
+style_prompt()
 {
     local ACTIVE_BACKGROUND_COLOR=''
     local ACTIVE_FOREGROUND_COLOR=''
@@ -205,5 +205,5 @@ style_bash()
 }
 
 if [ "$TERM" != "linux" ]; then
-   PROMPT_COMMAND="style_bash; $PROMPT_COMMAND"
+   PROMPT_COMMAND="style_prompt; $PROMPT_COMMAND"
 fi
