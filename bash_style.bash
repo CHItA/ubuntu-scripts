@@ -10,9 +10,11 @@ style_bash()
     local ACTIVE_FOREGROUND_COLOR=''
     local PREV_BACKGROUND_COLOR=''
 
-    local SEPARATOR=$(printf '\u25e4')
+    local SECTION_SEPARATOR_MAJOR=$(printf '\xE2\x97\xA4')
+    local SECTION_SEPARATOR_MINOR='/'
+    local SECTION_SEPARATOR_END=$(printf '\xE2\x97\xA3')
 
-    local OUTPUT=""
+    local OUTPUT=''
 
     write_color()
     {
@@ -90,8 +92,12 @@ style_bash()
         fi
 
         if ! [ -z "$PREV_BACKGROUND_COLOR" ]; then
-            echo -n $(write_foreground_color $PREV_BACKGROUND_COLOR)
-            echo -n $SEPARATOR
+            if [[ "$PREV_BACKGROUND_COLOR" != "$ACTIVE_BACKGROUND_COLOR" ]]; then
+                echo -n $(write_foreground_color $PREV_BACKGROUND_COLOR)
+                echo -n $SECTION_SEPARATOR_MAJOR
+            else
+                echo -n $SECTION_SEPARATOR_MINOR
+            fi
         fi
 
         if ! [ -z "$ACTIVE_FOREGROUND_COLOR" ]; then
@@ -112,34 +118,39 @@ style_bash()
             return
         fi
 
-        set_background_color white
-        set_foreground_color black
-        OUTPUT="$OUTPUT$(write_out_section 1)\H"
+        set_background_color black
+        set_foreground_color white
+        OUTPUT="$OUTPUT$(write_out_section 1)\H "
     }
 
     set_user()
     {
-        set_background_color yellow
-        set_foreground_color black
+        set_background_color black
+        set_foreground_color yellow
         OUTPUT="$OUTPUT$(write_out_section 1)"
 
         if [ "$(whoami)" != "$(logname)" ]; then
-            OUTPUT="$OUTPUT$(logname) (as \u)"
+            OUTPUT="$OUTPUT $(logname) (as \u) "
         else
-            OUTPUT="$OUTPUT\u"
+            OUTPUT="$OUTPUT \u "
         fi
     }
 
     set_cwd()
     {
-        set_background_color blue
-        set_foreground_color black
-        OUTPUT="$OUTPUT$(write_out_section 1)\w"
+        set_background_color black
+        set_foreground_color blue
+        OUTPUT="$OUTPUT$(write_out_section 1) \w"
     }
 
     set_git_data()
     {
-        git --version >> /dev/null
+        local UNCOMMITED_CHANGE=$(printf '\xC2\xB1')
+        local BRANCH_BEHIND_REMOTE=$(printf '\xE2\x86\x93')
+        local BRANCH_AHEAD_REMOTE=$(printf '\xE2\x86\x91')
+        local SYMBOLS=''
+
+        git --version > /dev/null 2> /dev/null
         if [ $? -ne 0 ]; then
             return
         fi
@@ -149,16 +160,27 @@ style_bash()
             return
         fi
 
-        local MODIFIED=$(git status --porcelain)
-        if [ -n "$MODIFIED" ]; then
-            set_background_color yellow
-            MODIFIED=$(printf ' \u00b1')
-        else
-            set_background_color green
+        local BEHIND_COUNT=$(git rev-list --right-only HEAD...@{u} --count 2> /dev/null)
+        local AHEAD_COUNT=$(git rev-list --left-only HEAD...@{u} --count 2> /dev/null)
+        if [ -n "$BEHIND_COUNT" ] && [ "$BEHIND_COUNT" -gt 0 ]; then
+            SYMBOLS="$SYMBOLS$BRANCH_BEHIND_REMOTE"
         fi
 
+        if [ -n "$AHEAD_COUNT" ] && [ "$AHEAD_COUNT" -gt 0 ]; then
+            SYMBOLS="$SYMBOLS$BRANCH_AHEAD_REMOTE"
+        fi
+
+        if [ -n "$(git status --porcelain)" ]; then
+            SYMBOLS="$SYMBOLS$UNCOMMITED_CHANGE"
+        fi
+
+        if [ -n "$SYMBOLS" ]; then
+            SYMBOLS="$SYMBOLS"
+        fi
+
+        set_background_color green
         set_foreground_color black
-        OUTPUT="$OUTPUT$(write_out_section 1)$REF$MODIFIED"
+        OUTPUT="$OUTPUT$(write_out_section 1)$REF$SYMBOLS"
     }
 
     ps1()
@@ -175,7 +197,7 @@ style_bash()
         # Finish up with a separator
         echo -n '\[\033[m\]'
         echo -n $(write_foreground_color $ACTIVE_BACKGROUND_COLOR)
-        echo -n $(printf '\u25e3')
+        echo -n $SECTION_SEPARATOR_END
         echo -n '\[\033[m\] '
     }
 
